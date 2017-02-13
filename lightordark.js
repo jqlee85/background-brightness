@@ -1,3 +1,7 @@
+( function( $ ) {
+
+	"use strict";
+
 function getImageLightness(imageSrc,imgObject,callback) {
     var img = document.createElement("img");
     img.src = imageSrc;
@@ -17,6 +21,7 @@ function getImageLightness(imageSrc,imgObject,callback) {
 
         var imageData = ctx.getImageData(0,0,canvas.width,canvas.height);
         var data = imageData.data;
+        console.log(imageData.data);
         var r,g,b,avg;
 
         for(var x = 0, len = data.length; x < len; x+=4) {
@@ -33,25 +38,26 @@ function getImageLightness(imageSrc,imgObject,callback) {
     }
 }
 
-function checkItems(imgSelector,textSelector) {
-
-  var threshold = 127;
+function backgroundImageBrightness(imgSelector,contentSelector,threshold = 127) {
 
   // Check each item
   $(imgSelector).each(function(){
+
     var imgObject = $(this);
     var bg = imgObject.css('background-image');
-    bg = bg.replace('url(','').replace(')','').replace(/\"/gi, "");
+    bg = bg.replace(/^url\(['"]?/,'').replace(/['"]?\)$/,'');
 
-    var lightness = getImageLightness( bg, imgObject ,function(brightness,imgObject){
+    getImageLightness( bg, imgObject ,function(brightness,imgObject){
 
         console.log(brightness);
         if (brightness < threshold) {
           console.log('Dark');
-          imgObject.find(textSelector).addClass('lightordark-dark');
+          imgObject.find(contentSelector).removeClass('bg-img-light');
+          imgObject.find(contentSelector).addClass('bg-img-dark');
         } else {
           console.log('Light');
-          imgObject.find(textSelector).addClass('lightordark-light');
+          imgObject.find(contentSelector).removeClass('bg-img-dark');
+          imgObject.find(contentSelector).addClass('bg-img-light');
         }
     });
 
@@ -59,9 +65,11 @@ function checkItems(imgSelector,textSelector) {
 
 }
 
-$('document').ready(function(){
+$(document).ready(function(){
 
-  checkItems('.example','.example-text');
-
+  backgroundImageBrightness('.example','.example-text');
 
 });
+
+
+})( jQuery );
